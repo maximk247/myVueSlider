@@ -125,11 +125,7 @@ export default {
       width: "40px",
       height: "18px",
 
-      fontFamily: "Raleway",
       fontSize: "16px",
-      fontWeight: "600",
-      lineHeight: "18px",
-      letterSpacing: "0em",
     };
 
     const yearLabelStyleForMonths = {
@@ -148,11 +144,7 @@ export default {
       minWidth: "27px",
 
       color: "rgba(153, 153, 153, 1)",
-      fontFamily: "Raleway",
       fontSize: "14px",
-      fontWeight: "600",
-      lineHeight: "18px",
-      letterSpacing: "0em",
     };
 
     const stepStyle = ref({
@@ -345,11 +337,11 @@ export default {
 
   color: rgba(1, 103, 179, 1);
   text-align: left;
-  font-family: Raleway;
   font-size: 14px;
   font-weight: 600;
   line-height: 18px;
   letter-spacing: 0em;
+  white-space: nowrap;
 
   cursor: pointer;
 }
@@ -376,7 +368,6 @@ export default {
 
   border-color: #c8dafc;
   border-radius: 12px;
-  border-top: none;
   background-color: #fff;
   box-shadow: 0px 5px 15px 0px rgba(14, 88, 143, 0.2);
 
@@ -384,10 +375,6 @@ export default {
   text-align: center;
   font-size: 18px;
   white-space: nowrap;
-  font-family: "Raleway", sans-serif;
-  font-weight: 600;
-  line-height: 24px;
-  letter-spacing: 0em;
 }
 
 .slider-tooltip::after {

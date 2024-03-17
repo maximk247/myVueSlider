@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vue/compat": "^3.4.21",
     "vue": "^3.4.21",
     "vue-3-slider-component": "^0.1.4",
     "vue-slider-component": "^4.1.0-beta.7",
