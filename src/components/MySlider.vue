@@ -18,7 +18,7 @@
     </div>
     <vue-slider
       v-if="viewMode === 'years'"
-      v-model="monthRange"
+      v-model="monthRangeForYears"
       :width="1117"
       :height="10"
       :dotSize="[20, 20]"
@@ -49,12 +49,12 @@
 
     <vue-slider
       v-if="viewMode === 'months'"
-      v-model="monthRange"
+      v-model="monthRangeForMonths"
       :width="1117"
       :height="10"
       :dotSize="[20, 20]"
       :interval="1"
-      :min="jan2015Index"
+      :min="monthMin"
       :max="monthMax"
       :marks="monthMarks"
       :tooltip="'always'"
@@ -151,14 +151,25 @@ export default {
       width: "0px",
     });
 
-    const minYear = computed(() => props.minDate.getFullYear());
-    const maxYear = computed(() => props.maxDate.getFullYear());
+    const jan2015Index = computed(() => {
+      const jan2015 = new Date(2015, 0);
+      return (
+        (jan2015.getFullYear() - props.minDate.getFullYear()) * 12 +
+        jan2015.getMonth() -
+        props.minDate.getMonth()
+      );
+    });
 
-    const yearRange = ref([
-      props.selectedStartDate.getFullYear(),
-      props.selectedEndDate.getFullYear(),
-    ]);
+    const jan2017Index = computed(() => {
+      const jan2017 = new Date(2017, 0);
+      return (
+        (jan2017.getFullYear() - props.minDate.getFullYear()) * 12 +
+        jan2017.getMonth() -
+        props.minDate.getMonth()
+      );
+    });
 
+    const monthRangeForYears = ref([jan2015Index.value, jan2017Index.value]);
     const yearMarks = computed(() => {
       const marks = {};
       const startYear = props.minDate.getFullYear();
@@ -195,40 +206,33 @@ export default {
       "Декабрь",
     ];
 
-    const jan2015Index = computed(() => {
-      const jan2015 = new Date(2015, 0);
-      return (
-        (jan2015.getFullYear() - props.minDate.getFullYear()) * 12 +
-        jan2015.getMonth() -
-        props.minDate.getMonth()
-      );
-    });
-
-    const jan2017Index = computed(() => {
-      const jan2017 = new Date(2017, 0);
-      return (
-        (jan2017.getFullYear() - props.minDate.getFullYear()) * 12 +
-        jan2017.getMonth() -
-        props.minDate.getMonth()
-      );
+    const monthRangeForMonths = ref([0, 0]);
+    const lastRangeForYears = ref([...monthRangeForYears.value]);
+    const lastRangeForMonths = ref([...monthRangeForMonths.value]);
+    const monthMin = computed(() => {
+      return viewMode.value === "months" ? monthRangeForYears.value[0] : 0;
     });
 
     const monthMax = computed(() => {
-      return viewMode.value === "months"
-        ? jan2017Index.value
-        : (props.maxDate.getFullYear() - props.minDate.getFullYear()) * 12 +
-            props.maxDate.getMonth() -
-            props.minDate.getMonth();
+      if (viewMode.value === "months") {
+        return monthRangeForYears.value[1];
+      } else {
+        return (
+          (props.maxDate.getFullYear() - props.minDate.getFullYear()) * 12 +
+          props.maxDate.getMonth() -
+          props.minDate.getMonth()
+        );
+      }
     });
-
-    const monthRange = ref([jan2015Index.value, jan2017Index.value]);
 
     const monthMarks = computed(() => {
       const marks = {};
       const maxIndex =
-        viewMode.value === "months" ? jan2017Index.value : monthMax.value;
-
-      for (let i = jan2015Index.value; i <= maxIndex; i++) {
+        viewMode.value === "months"
+          ? monthRangeForYears.value[1]
+          : monthMax.value;
+      const startIndex = monthRangeForYears.value[0];
+      for (let i = startIndex; i <= maxIndex; i++) {
         const year = Math.floor(i / 12) + props.minDate.getFullYear();
         const month = i % 12;
         if (month === 0) {
@@ -259,36 +263,62 @@ export default {
     };
 
     const switchView = (newMode) => {
+      if (viewMode.value === newMode) {
+        return;
+      }
+
+      if (viewMode.value === "years") {
+        lastRangeForYears.value = [...monthRangeForYears.value];
+      } else {
+        lastRangeForMonths.value = [...monthRangeForMonths.value];
+      }
+
       viewMode.value = newMode;
+
       if (newMode === "months") {
-        monthRange.value = [
-          jan2015Index.value,
-          Math.min(monthRange.value[1], jan2017Index.value),
-        ];
+        const minVal = lastRangeForYears.value[0];
+        const maxVal = Math.min(lastRangeForYears.value[1], monthMax.value);
+        monthRangeForMonths.value = [minVal, maxVal];
+      } else {
+        // Это изменение позволит установить границы для "Все года" на основе последнего выбранного диапазона в "Месяца"
+        const minVal = lastRangeForMonths.value[0];
+        const maxVal = lastRangeForMonths.value[1];
+        monthRangeForYears.value = [minVal, maxVal];
       }
     };
 
-    watch(viewMode, (newVal) => {
-      if (newVal === "months") {
-        monthRange.value = [
-          jan2015Index.value,
-          Math.min(monthRange.value[1], jan2017Index.value),
-        ];
-      }
-    });
+    watch(
+      monthRangeForYears,
+      (newRange) => {
+        if (viewMode.value === "years") {
+          lastRangeForYears.value = [...newRange];
+        }
+      },
+      { deep: true }
+    );
+
+    watch(
+      monthRangeForMonths,
+      (newRange) => {
+        console.log(newRange);
+        if (viewMode.value === "months") {
+          lastRangeForMonths.value = [...newRange];
+        }
+      },
+      { deep: true }
+    );
 
     return {
       viewMode,
       switchView,
 
-      minYear,
-      maxYear,
-      yearRange,
       yearMarks,
+      monthRangeForYears,
 
       months,
+      monthMin,
       monthMax,
-      monthRange,
+      monthRangeForMonths,
       monthMarks,
 
       jan2015Index,
