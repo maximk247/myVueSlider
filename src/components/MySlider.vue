@@ -170,6 +170,7 @@ export default {
     });
 
     const monthRangeForYears = ref([jan2015Index.value, jan2017Index.value]);
+
     const yearMarks = computed(() => {
       const marks = {};
       const startYear = props.minDate.getFullYear();
@@ -209,6 +210,7 @@ export default {
     const monthRangeForMonths = ref([0, 0]);
     const lastRangeForYears = ref([...monthRangeForYears.value]);
     const lastRangeForMonths = ref([...monthRangeForMonths.value]);
+
     const monthMin = computed(() => {
       return viewMode.value === "months" ? monthRangeForYears.value[0] : 0;
     });
