@@ -282,7 +282,6 @@ export default {
         const maxVal = Math.min(lastRangeForYears.value[1], monthMax.value);
         monthRangeForMonths.value = [minVal, maxVal];
       } else {
-        // Это изменение позволит установить границы для "Все года" на основе последнего выбранного диапазона в "Месяца"
         const minVal = lastRangeForMonths.value[0];
         const maxVal = lastRangeForMonths.value[1];
         monthRangeForYears.value = [minVal, maxVal];
