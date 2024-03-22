@@ -301,7 +301,6 @@ export default {
     watch(
       monthRangeForMonths,
       (newRange) => {
-        console.log(newRange);
         if (viewMode.value === "months") {
           lastRangeForMonths.value = [...newRange];
         }
